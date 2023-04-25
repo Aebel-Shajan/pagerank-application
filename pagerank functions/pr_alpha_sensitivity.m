@@ -28,6 +28,5 @@ end
 S = H + (e * a')/n;
 I = eye(n);
 inverse = inv(I - alpha*S);
-e'*inverse;
 alpha_sensitivity = -1*inverse*inverse*(I - S)*v;
 end
