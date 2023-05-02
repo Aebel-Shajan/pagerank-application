@@ -27,12 +27,10 @@ n = size(A, 1); % dimension
 % r = sum(A, 2); % out degree
 c = sum(A, 1); % in degree
 e = ones(n, 1);
-H = A
+H = zeros(n, n);
 for i = 1:numel(c)
     if c(i)~=0
-        H(:,i) = A(:,i)./c(i);
-    else
-        H(:,i) = A(:,i);
+        H(:, i) = A(:, i)./c(i);
     end
 end
 e_H = e'*H

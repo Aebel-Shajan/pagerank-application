@@ -1,19 +1,4 @@
 function [adjacencyMatrix, linkNames] = webCrawler(websiteName, maxDepth, maxNodes, blacklist, whitelist)
-% webCrawler - crawl a website and generate an adjacency matrix of links
-%
-% Syntax: 
-% [adjacencyMatrix, linkNames] = webCrawler(websiteName, maxDepth, maxNodes, blacklist, whitelist)
-%
-% Inputs:
-% websiteName - the starting website URL
-% maxDepth - maximum depth of the crawl (default 2)
-% maxNodes - maximum number of nodes to visit (default 100)
-% blacklist - list of URLs to ignore
-% whitelist - list of URLs to only include
-%
-% Outputs:
-% adjacencyMatrix - adjacency matrix of links between visited websites
-% linkNames - cell array of URLs of visited websites
     if nargin < 2
         maxDepth = 2;
     end
@@ -26,6 +11,7 @@ function [adjacencyMatrix, linkNames] = webCrawler(websiteName, maxDepth, maxNod
     if nargin < 5
         whitelist = string([]);
     end
+    
     visitedWebsites = containers.Map;% Matlabs version of containers
     adjacencyList = containers.Map;
     currentUrl = websiteName;
@@ -34,20 +20,24 @@ function [adjacencyMatrix, linkNames] = webCrawler(websiteName, maxDepth, maxNod
     progressBarWidth = 50;
     previousStringLength = progressBarWidth;
     index = 0;
+
     while ~isempty(visitQueue) && length(visitedWebsites) < maxNodes
         index = index + 1;
         current = visitQueue{1};
         visitQueue(1) = [];
         currentUrl = current.url;
         currentDepth = current.depth;
+
         if visitedWebsites.isKey(currentUrl) || any(contains(currentUrl, blacklist)) || ...
            (~isempty(whitelist) && ~any(contains(currentUrl, whitelist))) && index ~= 1
             continue;
         end
+
         try
             htmlContent = webread(currentUrl);
             visitedWebsites(currentUrl) = true;
             links = extractLinks(htmlContent);
+
             for i = 1:length(links)
                 link = links{i};
                 if startsWith(link, "/")
@@ -57,6 +47,7 @@ function [adjacencyMatrix, linkNames] = webCrawler(websiteName, maxDepth, maxNod
                     end
                     link = "https://" + strippedUrl + link;
                 end
+
                 if ~visitedWebsites.isKey(link) && ...
                    ~any(contains(link, blacklist)) && ...
                    (isempty(whitelist) || any(contains(link, whitelist)))
@@ -64,6 +55,7 @@ function [adjacencyMatrix, linkNames] = webCrawler(websiteName, maxDepth, maxNod
                         adjacencyList(currentUrl) = string([]);
                     end
                     adjacencyList(currentUrl) = [adjacencyList(currentUrl), link];
+
                     if currentDepth < maxDepth
                         visitQueue{end+1} = struct('url', link, 'depth', currentDepth + 1);
                     end

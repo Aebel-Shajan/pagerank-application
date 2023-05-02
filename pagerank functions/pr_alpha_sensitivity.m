@@ -6,17 +6,15 @@ n = size(A, 1); % dimension
 % r = sum(A, 2); % in degree
 c = sum(A, 1); % out degree
 e = ones(n, 1);
-H = A;
+H = zeros(n, n);
 for i = 1:numel(c)
     if c(i)~=0
-        H(:,i) = A(:,i)./c(i);
-    else
-        H(:,i) = A(:,i);
+        H(:, i) = A(:, i)./c(i);
     end
 end
 
 % 2.Stochastic Adjustment
-a = ones(size(H, 1), 1);
+a = ones(n, 1);
 for j = 1:size(H, 2)
     for i = 1:size(H, 1)
         if H(i, j) ~= 0
@@ -25,8 +23,9 @@ for j = 1:size(H, 2)
         end
     end
 end
+
 S = H + (e * a')/n;
 I = eye(n);
 inverse = inv(I - alpha*S);
-alpha_sensitivity = -1*inverse*inverse*(I - S)*v;
+alpha_sensitivity = -1*inverse*(I - S)*inverse*v;
 end
